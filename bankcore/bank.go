@@ -74,7 +74,7 @@ func Statement(s Statementer) string {
 	return s.Statement()
 }
 
-func (a *Account) SendPayment(to *Account, amount float64) {
+func (a *Account) Transform(to *Account, amount float64) {
 	a.Withdraw(amount)
 	to.Deposit(amount)
 }

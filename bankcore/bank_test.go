@@ -110,7 +110,7 @@ func TestSendPayment(t *testing.T) {
 		Balance: 1000,
 	}
 
-	account1.SendPayment(&account2, 500)
+	account1.Transfer(&account2, 500)
 
 	if account1.Balance != 500 {
 		t.Error("balance is incorrect", account1.Balance)
