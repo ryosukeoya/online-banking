@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,7 +10,7 @@ import (
 	"github.com/msft/bank"
 )
 
-var accounts = map[float64]*bank.Account{}
+var accounts = map[float64]*bank.CustomAccount{}
 
 func statement(w http.ResponseWriter, req *http.Request) {
 	numberqs := req.URL.Query().Get("number")
@@ -26,7 +27,7 @@ func statement(w http.ResponseWriter, req *http.Request) {
 		if !ok {
 			fmt.Fprintf(w, "Account with number %v can't be found!", number)
 		} else {
-			fmt.Fprintf(w, account.Statement())
+			json.NewEncoder(w).Encode(bank.Statement(account))
 		}
 	}
 }
@@ -53,7 +54,7 @@ func deposit(w http.ResponseWriter, req *http.Request) {
 			if err != nil {
 				fmt.Fprintf(w, "%v", err)
 			} else {
-				// fmt.Fprintf(w, account.Statement())
+				// fmt.Fprintf(w, Statement(account.Statement))
 			}
 		}
 	}
@@ -81,20 +82,23 @@ func withdraw(w http.ResponseWriter, req *http.Request) {
 			if err != nil {
 				fmt.Fprintf(w, "%v", err)
 			} else {
-				fmt.Fprintf(w, account.Statement())
+				json.NewEncoder(w).Encode(bank.Statement(account))
 			}
 		}
 	}
 }
 
 func main() {
-	accounts[1001] = &bank.Account{
-		Customer: bank.Customer{
-			Name:    "John",
-			Address: "Los Angeles, California",
-			Phone:   "(213) 555 0147",
+	accounts[1001] = &bank.CustomAccount{
+		&bank.Account{
+			Customer: bank.Customer{
+				Name:    "John",
+				Address: "Los Angeles, California",
+				Phone:   "(213) 555 0147",
+			},
+			Number:  1001,
+			Balance: 1000,
 		},
-		Number: 1001,
 	}
 
 	http.HandleFunc("/statement", statement)

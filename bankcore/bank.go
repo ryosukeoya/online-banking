@@ -1,8 +1,10 @@
 package bank
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 )
 
 // Customer ...
@@ -47,9 +49,29 @@ func (a *Account) Withdraw(amount float64) error {
 	return nil
 }
 
+type Statementer interface {
+	Statement() string
+}
+
+type CustomAccount struct {
+	*Account
+}
+
 // Statement ...
 func (a *Account) Statement() string {
 	return fmt.Sprintf("%v - %v - %v", a.Number, a.Name, a.Balance)
+}
+
+func (a *CustomAccount) Statement() string {
+	b, err := json.Marshal(a)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(b)
+}
+
+func Statement(s Statementer) string {
+	return s.Statement()
 }
 
 func (a *Account) SendPayment(to *Account, amount float64) {
